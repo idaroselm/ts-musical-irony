@@ -7,7 +7,7 @@ An exploratory data analysis project asking whether Taylor Swift systematically 
 - **Sentiment analysis**: `TextBlob` (a lexicon/rule-based Python NLP library — no model downloads, no API calls) scores each lyric line from -1 (negative) to +1 (positive); scores are averaged to a per-song sentiment score.
 - **Musical positivity**: average of Spotify's `valence` and `energy` audio features per song.
 - **Irony score**: `musical_positivity - lyrical_sentiment`. A positive score means upbeat production paired with sadder lyrics — the "ironic" pattern; near-zero means the two are aligned.
-- **Data sources**: a lyrics-by-line dataset and a Spotify audio-features dataset, both originally sourced from Kaggle.
+- **Data sources**: a lyrics-by-line dataset and a Spotify audio-features dataset (see [Data sources](#data-sources) below).
 
 ## Key findings
 
@@ -22,6 +22,7 @@ An exploratory data analysis project asking whether Taylor Swift systematically 
 ```
 notebook/01_build_song_level_dataset.py   — documents the merge + sentiment pipeline (not run automatically — see below)
 notebook/02_irony_analysis.py             — the actual analysis; runs as-is against data/song_level_sentiment.csv
+notebook/03_DataPresentation-TSMusicalIrony.ipynb — the original class presentation notebook (needs the raw files — see Data sources)
 data/song_level_sentiment.csv             — derived per-song scores (149 songs), included
 outputs/                                  — regenerated charts from the last run
 ```
@@ -30,7 +31,21 @@ outputs/                                  — regenerated charts from the last r
 
 Song lyrics are copyrighted. `01_build_song_level_dataset.py` documents exactly how the raw lyrics-by-line dataset and the Spotify audio-features dataset were merged and scored, but neither raw file is bundled here, and the pipeline never writes lyric text back out — only the resulting per-song aggregate scores. `data/song_level_sentiment.csv` is a derived, transformative dataset (numeric sentiment/audio scores per song title), not a reproduction of the underlying copyrighted text.
 
-To reproduce `song_level_sentiment.csv` yourself: source a Taylor Swift lyrics-by-line dataset and the "Spotify Musical Analysis" audio-features dataset (both were available on Kaggle at the time of the original analysis, Aug-Sep 2025), point `01_build_song_level_dataset.py` at your local copies, and run it.
+## Data sources
+
+Neither raw file is included here. To reproduce the pipeline or run the presentation notebook, you'll need to assemble them yourself:
+
+| File | Source | Columns used |
+|---|---|---|
+| `taylor_swift_lyrics_full.csv` | Started from PromptCloud's [Taylor Swift Song Lyrics from all the albums](https://www.kaggle.com/datasets/PromptCloudHQ/taylor-swift-song-lyrics-from-all-the-albums) (Kaggle; covers the debut album through *reputation*), then extended by me in the same one-row-per-lyric-line format through *The Life of a Showgirl* (2025), including the Taylor's Version re-recordings | `artist, album, track_title, track_n, lyric, line, year` |
+| `Taylor Swift Spotify Data 11-24-2024.csv` | Pulled from the [Spotify Web API](https://developer.spotify.com/documentation/web-api) on 2024-11-24: Taylor Swift's album tracks plus their audio features | `track_name, album_name, danceability, energy, loudness, liveness, valence, tempo` |
+
+Place both files in `data/` with those exact names. Then either:
+
+- point `LYRICS_PATH` / `AUDIO_FEATURES_PATH` in `01_build_song_level_dataset.py` at them and run it to regenerate `data/song_level_sentiment.csv`, or
+- open `notebook/03_DataPresentation-TSMusicalIrony.ipynb` from the `notebook/` folder (it reads `../data/...`).
+
+Note: Spotify deprecated the audio-features endpoint for new API apps in November 2024, so a fresh pull may not return `valence`, `energy`, etc.
 
 ## Running the analysis
 
